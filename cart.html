@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Carrito de Compras</title>
+</head>
+<body>
+  <h1>Carrito de Compras</h1>
+  <button onclick="addToCart(1, 1)">Agregar Producto 1</button>
+  <button onclick="addToCart(2, 1)">Agregar Producto 2</button>
+  <button onclick="getCart()">Ver Carrito</button>
+  <button onclick="processPayment()">Procesar Pago</button>
+
+  <div id="cart"></div>
+  <div id="total"></div>
+
+  <script>
+    async function addToCart(productId, quantity) {
+      const response = await fetch('/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity }),
+      });
+      const data = await response.json();
+      console.log('Producto agregado:', data);
+    }
+
+    async function getCart() {
+      const response = await fetch('/cart');
+      const data = await response.json();
+      document.getElementById('cart').innerHTML = JSON.stringify(data.cartItems, null, 2);
+      document.getElementById('total').innerHTML = `Total: $${data.total}`;
+    }
+
+    async function processPayment() {
+      const total = document.getElementById('total').innerText.split('$')[1];
+      const response = await fetch('/checkout/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ total }),
+      });
+      const data = await response.json();
+      alert(data.message);
+    }
+  </script>
+</body>
+</html>
