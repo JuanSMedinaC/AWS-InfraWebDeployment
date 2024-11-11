@@ -4,6 +4,7 @@ import Head from 'next/head';
 import styles from './styles/Login.module.css';
 import { useLogin } from '@/hooks/auth/useLogin';
 import { useState} from 'react';
+import Cookies from "js-cookie";
 
 export default function Login() {
   const { login } = useLogin();
@@ -17,7 +18,22 @@ export default function Login() {
 
     try {
         await login(email, password);
-        window.location.href = "/home";
+        const currentUserCookie = Cookies.get("currentUser");
+        if (!currentUserCookie) {
+            setError("No se encontró el usuario actual");
+            return;
+        }
+        const currentUser = JSON.parse(currentUserCookie);
+        if (currentUser.role === "admin") {
+            window.location.href = "/home/admin";
+            return;
+        }else if (currentUser.role === "seller") {
+            window.location.href = "/home/seller";
+            return;
+        }else if (currentUser.role === "buyer") {
+            window.location.href = "/home/buyer";
+            return;
+        }
     } catch (error) {
         setError("Correo o contraseña incorrectos");
         console.error("Error en el login:", error);

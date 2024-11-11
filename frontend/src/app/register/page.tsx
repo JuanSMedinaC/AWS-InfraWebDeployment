@@ -6,17 +6,37 @@ import { useState, FormEvent } from 'react';
 
 export default function Register() {
   const [role, setRole] = useState<'buyer' | 'seller' | 'admin'>('buyer');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const handleRoleClick = (newRole: 'buyer' | 'seller' | 'admin') => {
     setRole(newRole);
   };
 
+  const validatePasswords = () => {
+    if (password !== confirmPassword) {
+      setPasswordError('Las contraseñas no coinciden');
+      return false;
+    }
+    if (password.length < 6) {
+      setPasswordError('La contraseña debe tener al menos 6 caracteres');
+      return false;
+    }
+    setPasswordError('');
+    return true;
+  };
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!validatePasswords()) {
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     console.log('Datos de registro:', data);
-    // Aquí puedes enviar los datos a tu servidor
   };
 
   return (
@@ -40,7 +60,27 @@ export default function Register() {
           <input type="text" id="lastName" name="lastName" required placeholder="Tu apellido" />
 
           <label htmlFor="password">Contraseña</label>
-          <input type="password" id="password" name="password" required placeholder="Contraseña segura" />
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required 
+            placeholder="Contraseña segura" 
+          />
+
+          <label htmlFor="confirmPassword">Confirmar Contraseña</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            name="confirmPassword" 
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required 
+            placeholder="Confirma tu contraseña" 
+          />
+          {passwordError && <span className={styles.error}>{passwordError}</span>}
 
           <label>Rol</label>
           <div className={styles.roleSelector}>
