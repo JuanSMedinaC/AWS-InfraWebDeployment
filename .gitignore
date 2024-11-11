@@ -1,20 +1,20 @@
 # Node modules
-/node_modules
+node_modules/
 
 # Compiled TypeScript files
-/dist
-/build
+dist/
+build/
 
 # Docker-related files
-.docker
+.docker/
 docker-compose.override.yml
 
 # Logs
 *.log
-/logs
+logs/
 
 # TypeORM migrations
-/migrations
+migrations/
 
 # IDE/Editor files
 .vscode/
