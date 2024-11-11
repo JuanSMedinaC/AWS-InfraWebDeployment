@@ -52,12 +52,12 @@ export class ProductsService {
     }
 
     async update(req:any, id: string, updateProductDto: UpdateProductDto) {
-        const user = req.user as User;
+        const user = req.body.loggedUser;
         const product = await this.productsRepository.findOneBy({id:id});
         if (!product) {
             throw error(`Product with id ${id} not found`);
         }
-        if (product.sellerId==user.id||user.role==(UserRole.ADMIN)){
+        if (product.sellerId==user.user_id||user.role==(UserRole.ADMIN)){
             const product = await this.productsRepository.preload({
                 id: id,
                 ...updateProductDto
@@ -78,12 +78,12 @@ export class ProductsService {
     }
 
     async delete(req: any, id: string) {
-        const user = req.user as User;
+        const user = req.body.loggedUser;
         const product = await this.productsRepository.findOneBy({id:id})
         if (!product) {
             throw error(`Product with id ${id} not found`);
         }
-        if (product.sellerId==user.id||user.role==(UserRole.ADMIN)){
+        if (product.sellerId==user.user_id||user.role==(UserRole.ADMIN)){
             return await this.productsRepository.remove(product);
         }else{
             throw error('Unauthorized');

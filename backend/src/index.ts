@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import cors from 'cors';
 import userRouter from './routes/users.router';
 import productRouter from './routes/product.router';
+import orderRouter from './routes/order.router';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({extended: true}));
 
 app.use('/api/users', userRouter);
 app.use('/api/products', productRouter);
+app.use('/api/orders', orderRouter);
 
 AppDataSource.initialize()
   .then(() => {
