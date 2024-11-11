@@ -16,7 +16,7 @@ class UserController {
     try {
       const newUser = await userService.createUser(req.body as UserInput, req, res);
       if( newUser){
-        return res.status(201).json({ id: newUser.id, name: newUser.name, email: newUser.email });
+        return res.status(201).json({ id: newUser.id, name: newUser.name, lastName: newUser.lastName, email: newUser.email, role: newUser.role});
       }else{
         throw error;
       }
