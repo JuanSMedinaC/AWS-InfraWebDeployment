@@ -1,0 +1,40 @@
+.pageContainer {
+    padding: 20px;
+  }
+  
+  button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:disabled {
+    background-color: #888;
+  }
+  
+  .cartContainer {
+    margin-bottom: 20px;
+  }
+  
+  .cartItem {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .total {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .error {
+    color: red;
+  }
+  
+  .success {
+    color: green;
+  }
+  
