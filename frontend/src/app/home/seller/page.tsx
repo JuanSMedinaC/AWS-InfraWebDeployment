@@ -4,7 +4,6 @@ import Image from 'next/image';
 import styles from '../../styles/HomeSeller.module.css';
 import { Product } from '@/interfaces/product';
 import search from '../../icons/search.svg';
-import shoppingCart from '../../icons/shopping-cart.svg';
 import user from '../../icons/user.svg';
 import ProductCardSeller from "@/components/ProductCardSeller";
 import { useGetProductsByUser } from "@/hooks/products/useGetProductsByUser";
@@ -39,15 +38,19 @@ export default function HomeSellerPage(){
         setSearchQuery(event.target.value);
     };
 
-    const handleSubmit = async (id: string) => {
-        console.log("Producto seleccionado: ", id);
-    };
-
     const handleLogout = () => {
         Cookies.remove('token');
         Cookies.remove('currentUser');
         window.location.href = "/";
     };
+
+    const handleEdit = (id: string) => {
+        console.log('Edit product:', id);
+    }
+
+    const confirmDelete = (id: string) => {
+        console.log('Delete product:', id);
+    }
 
     return (
         <div className={styles.container}>
@@ -71,9 +74,6 @@ export default function HomeSellerPage(){
                                 </button>
                             </div>
                         </form>
-                        <button className={styles.iconButton}>
-                            <Image src={shoppingCart} alt="Carrito" width={20} height={20} />
-                        </button>
                         <button className={styles.iconButton} onClick={handleLogout}>
                             <Image src={user} alt="Usuario" width={20} height={20} />
                         </button>
@@ -111,7 +111,8 @@ export default function HomeSellerPage(){
                                 description={product.description}
                                 price={product.price}
                                 category={product.category}
-                                onChangePage={() => handleSubmit(product.id)}
+                                onEdit={() => handleEdit(product.id)}
+                                onDelete={() => confirmDelete(product.id)}
                             />
                         ))}
                     </div>
