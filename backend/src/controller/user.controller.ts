@@ -16,7 +16,7 @@ class UserController {
     try {
       const newUser = await userService.createUser(req.body as UserInput, req, res);
       if( newUser){
-        return res.status(201).json({ id: newUser.id, name: newUser.name, email: newUser.email });
+        return res.status(201).json({ id: newUser.id, name: newUser.name, lastName: newUser.lastName, email: newUser.email, role: newUser.role});
       }else{
         throw error;
       }
@@ -24,6 +24,7 @@ class UserController {
       return res.status(500).json({ message: "Error al crear el usuario", error });
     }
   }
+
   public async getAll(req : Request, res: Response) : Promise<any>{
     var userList = await userService.getAll();
     return res.status(200).json(userList);
@@ -31,8 +32,10 @@ class UserController {
 
   public async login(req: Request, res: Response): Promise<any> {
     try {
-      const token = await userService.login(req.body);
-      return res.status(200).json(token);
+      const userInfo = await userService.login(req.body);
+      const token = userInfo.token;
+      const ResponseUser = {token, user: {id: userInfo.user.id, name: userInfo.user.name,lastName: userInfo.user.lastName, email: userInfo.user.email, role: userInfo.user.role, createdAt: userInfo.user.createdAt}};
+      return res.status(200).json(ResponseUser);
     } catch (error) {
       return res.status(400).json({ message: "Error al iniciar sesión", error });
     }

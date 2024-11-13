@@ -32,7 +32,7 @@ export class UserService {
             throw error("Not authorized");
         const token = this.generateToken(userExist);
 
-        return {token} ;
+        return {token, user: userExist};
     } catch (error) {
         throw error;
     } 

@@ -1,0 +1,106 @@
+.body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f7f7f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.loginContainer {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 320px;
+}
+
+.logo {
+  text-align: center;
+}
+
+
+.loginError {
+  color: red;
+  font-size: 0.875rem;
+}
+
+
+.logoLetter {
+  font-size: 48px;
+  font-weight: bold;
+  color: #4CAF50;
+  background-color: #e8f5e9;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
+.h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form input {
+  margin: 10px 0;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.form input:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.form button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.form button:hover {
+  background-color: #45a049;
+}
+
+.forgotPassword {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.forgotPassword a {
+  color: #4CAF50;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.signup {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.signup a {
+  color: #4CAF50;
+  text-decoration: none;
+  font-weight: bold;
+}
