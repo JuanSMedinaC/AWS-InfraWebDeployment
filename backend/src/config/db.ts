@@ -20,4 +20,5 @@ export const AppDataSource = new DataSource({
   entities: [User, Order, Product, OrderItem],
   migrations: ["src/migration/*.ts"],
   subscribers: ["src/subscriber/*.ts"],
+  ssl: false
 });
