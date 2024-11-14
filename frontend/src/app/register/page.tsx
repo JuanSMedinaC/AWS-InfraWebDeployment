@@ -5,6 +5,7 @@ import styles from '../styles/Register.module.css';
 import { useRegister } from '@/hooks/auth/useRegister';
 import { useLogin } from '@/hooks/auth/useLogin';
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Register() {
   const { login } = useLogin();
@@ -165,7 +166,10 @@ export default function Register() {
         </form>
 
         <div className={styles.login}>
-          ¿Ya tienes una cuenta? <a href="/">Inicia sesión</a>
+          ¿Ya tienes una cuenta? 
+          <Link href="/">
+            <a>Inicia sesión</a>
+          </Link>
         </div>
       </div>
     </div>

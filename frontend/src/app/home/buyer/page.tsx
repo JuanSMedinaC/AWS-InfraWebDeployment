@@ -26,8 +26,8 @@ export default function HomeBuyerPage(){
             }
         };
         fetchData();
-    }, []);
-
+    }, [getProducts]);
+    
     const categories = ['food', 'drink', 'books', 'electronics', 'fashion', 'sports', 'other'];
 
     const filteredProducts = products.filter(product => 

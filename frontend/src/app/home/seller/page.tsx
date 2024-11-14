@@ -25,7 +25,7 @@ export default function HomeSellerPage(){
             }
         };
         fetchData();
-    }, []);
+    }, [getProductsByUser]);
 
     const categories = ['food', 'drink', 'books', 'electronics', 'fashion', 'sports', 'other'];
 
