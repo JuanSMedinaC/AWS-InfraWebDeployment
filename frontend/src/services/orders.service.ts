@@ -35,4 +35,50 @@ export class OrdersService {
         });
         return response.data;
     }
+
+    public async getOrderSeller(sellerId: string) {
+        const response = await this.axios.get(`/orders/seller/${sellerId}`, {
+            headers: {
+                Authorization: `Bearer ${Cookies.get("token")}`
+            }
+        });
+        return response.data;
+    }
+
+    public async getOrder(orderId: string) {
+        const response = await this.axios.get(`/orders/${orderId}`, {
+            headers: {
+                Authorization: `Bearer ${Cookies.get("token")}`
+            }
+        });
+        return response.data;
+    }
+
+    public async updateOrderStatus(orderId: string) {
+        const token = Cookies.get("token");
+        const currentUser = Cookies.get("currentUser");
+
+        if (!token || !currentUser) {
+            throw new Error("No se encontró el token o el usuario actual en las cookies");
+        }
+
+        const user = JSON.parse(currentUser);
+        const userId = user.id;
+
+        const body = {
+            userId: userId,
+            orderId: orderId
+        };
+
+        console.log("Body enviado al backend:", body);
+
+        const response = await this.axios.put(`/orders/`, body, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        return response.data;
+    }
+
 }

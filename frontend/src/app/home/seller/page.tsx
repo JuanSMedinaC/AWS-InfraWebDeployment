@@ -74,8 +74,11 @@ export default function HomeSellerPage(){
                                 </button>
                             </div>
                         </form>
-                        <button className={styles.iconButton} onClick={handleLogout}>
+                        <button className={styles.iconButton} onClick={() => window.location.href = "seller/orders"}>
                             <Image src={user} alt="Usuario" width={20} height={20} />
+                        </button>
+                        <button className={styles.iconButton} onClick={handleLogout}>
+                            Cerrar Sesión
                         </button>
                     </div>
                 </div>

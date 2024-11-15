@@ -10,5 +10,6 @@ export interface Order {
       quantity: number;
     }[];
     createdAt: string;
-    sellerUser:User
+    sellerUser:User;
+    user:User;
   }

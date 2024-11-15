@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/OrderCardBuyer';
 import styles from '../../../styles/OrderBuyerPage.module.css';
-import { useGetOrdersBuyer } from "@/hooks/orders/useGetOrdersBuyer";
+import { useGetOrdersSeller } from "@/hooks/orders/useGetOrdersSeller";
 import { useGetProductsById } from "@/hooks/products/useGetProductsById";
+import { useUpdateOrderStatus } from "@/hooks/orders/useUpdateOrderStatus";
 import Cookies from 'js-cookie';
 
 class Order {
@@ -11,23 +12,24 @@ class Order {
     public id: string,
     public date: string,
     public total: number,
-    public status: string,
-    public seller: string,
+    public accepted: string,
+    public buyer: string,
     public items: Array<{ name: string, price: number, quantity: number }>
   ) {}
 }
 
 const OrderBuyerPage = () => {
-  const { getOrdersBuyer } = useGetOrdersBuyer();
+  const { getOrdersSeller } = useGetOrdersSeller();
   const { getProductsById } = useGetProductsById();
   const [orders, setOrders] = useState<Order[]>([]);
+  const { updateOrderStatus } = useUpdateOrderStatus();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const buyer = Cookies.get('currentUser');
-        const buyerId = JSON.parse(buyer || '{}').id;
-        const response = await getOrdersBuyer(buyerId);
+        const seller = Cookies.get('currentUser');
+        const sellerId = JSON.parse(seller || '{}').id;
+        const response = await getOrdersSeller(sellerId);
 
         const ordersData = await Promise.all(response.map(async (order) => {
           let total = 0;
@@ -46,7 +48,7 @@ const OrderBuyerPage = () => {
             new Date(order.createdAt).toLocaleDateString(),
             total,
             order.accepted ? 'Aceptada' : 'Pendiente',
-            `${order.sellerUser.name} ${order.sellerUser.lastName}`,
+            `${order.user.name} ${order.user.lastName}`,
             itemsDetails
           );
         }));
@@ -57,7 +59,24 @@ const OrderBuyerPage = () => {
       }
     };
     fetchData();
-  }, [getOrdersBuyer, getProductsById]);
+  }, [getOrdersSeller, getProductsById]);
+
+  const changeOrderStatus = async (orderId: string) => {
+    try {
+      await updateOrderStatus(orderId);
+
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === orderId
+            ? { ...order, accepted: 'Aceptado' }
+            : order
+        )
+      );
+    } catch (error) {
+      console.error('Error changing order accepted:', error);
+    }
+  };
+
 
   return (
     <div className={styles.container}>
@@ -71,8 +90,8 @@ const OrderBuyerPage = () => {
               <div key={order.id} className={styles.orderItem}>
                 <h3 className={styles.orderTitle}>Orden #{order.id}</h3>
                 <p className={styles.orderDetail}>Pedido en: {order.date}</p>
-                <p className={styles.orderDetail}>Vendedor: {order.seller}</p>
-                <p className={styles.orderDetail}>Estado: {order.status}</p>
+                <p className={styles.orderDetail}>Comprador: {order.buyer}</p>
+                <p className={styles.orderDetail}>Estado: {order.accepted}</p>
 
                 <h4 className={styles.sectionTitle}>Detalles de los productos:</h4>
                 {order.items.map((item, index) => (
@@ -85,6 +104,16 @@ const OrderBuyerPage = () => {
                 ))}
 
                 <p className={styles.orderDetail}>Total: ${order.total}</p>
+
+                {/* Solo mostrar el botón si el estado es "Pendiente" */}
+                {order.accepted === 'Pendiente' && (
+                  <button 
+                    className={styles.button}
+                    onClick={() => changeOrderStatus(order.id)}
+                  >
+                    Cambiar estado a Enviado
+                  </button>
+                )}
               </div>
             ))
           ) : (
