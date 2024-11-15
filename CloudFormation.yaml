@@ -1,0 +1,481 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy backend with Express.js connected to RDS PostgreSQL using CloudFormation
+
+Parameters:
+  KeyName:
+    Type: String
+    Description: Name of an existing EC2 KeyPair to SSH into instances
+    Default: vockey
+
+  InstanceType:
+    Type: String
+    Description: EC2 instance type for app server
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+
+  DBUsername:
+    Type: String
+    Description: Username for PostgreSQL database
+    Default: mkinfra
+
+  DBPassword:
+    Type: String
+    Description: Password for PostgreSQL database
+    NoEcho: true  # Hide from output
+
+  CPUAlarmThreshold:
+    Type: Number
+    Description: CPU utilization threshold for EC2 instances (in percentage)
+    Default: 75
+
+  DBConnectionAlarmThreshold:
+    Type: Number
+    Description: Database connections threshold for RDS instance
+    Default: 100
+
+Resources:
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: us-east-1a
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.4.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: us-east-1b
+
+  PublicSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: us-east-1a
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      AllocationId: !GetAtt ElasticIP.AllocationId
+
+  ElasticIP:
+    Type: AWS::EC2::EIP
+
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+  PrivateSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet1
+      RouteTableId: !Ref PrivateRouteTable1
+
+  NatGateway2:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      AllocationId: !GetAtt ElasticIP2.AllocationId
+
+  ElasticIP2:
+    Type: AWS::EC2::EIP
+
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway2
+
+  PrivateSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet2
+      RouteTableId: !Ref PrivateRouteTable2
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: us-east-1b
+
+  MyRDSParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties: 
+      Description: Custom parameter group with SSL disabled
+      Family: postgres16  # Update to match the correct version of PostgreSQL
+      Parameters: 
+        rds.force_ssl: "0"
+
+  MyRDS:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.micro
+      Engine: postgres
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      DBName: marketplace_infra
+      AllocatedStorage: 20
+      VPCSecurityGroups: [!Ref MyRDSSecurityGroup]
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      DBParameterGroupName: !Ref MyRDSParameterGroup
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+
+  MyRDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for RDS
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 10.0.0.0/16
+
+  ECSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EC2 instance
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0  # Change to restrict SSH access
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+
+  BackendSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for private backend instance
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 10.0.1.0/24  # Allow only traffic from public subnet
+  #LOAD BALANCER
+    # Additional Load Balancer for the frontend
+  AppLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: "AppLoadBalancer"
+      Subnets:
+        - !Ref PublicSubnet
+        - !Ref PublicSubnet2
+      SecurityGroups:
+        - !Ref ECSecurityGroup
+      Scheme: internet-facing
+
+
+  # Target Group for Frontend
+  FrontendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: "FrontendTG"
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref VPC
+      TargetType: instance
+
+  # Listener for Frontend Load Balancer
+  FrontendListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTargetGroup
+      LoadBalancerArn: !Ref AppLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  # Target Group for Backend
+  BackendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: "BackendTG"
+      Port: 3000
+      Protocol: HTTP
+      VpcId: !Ref VPC
+      TargetType: instance
+
+  # Backend Load Balancer Listener
+  BackendListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref BackendTargetGroup
+      LoadBalancerArn: !Ref AppLoadBalancer
+      Port: 3000
+      Protocol: HTTP
+
+  # Auto Scaling Group for Frontend
+  FrontendAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PublicSubnet
+        - !Ref PublicSubnet2
+      LaunchTemplate:
+        LaunchTemplateId: !Ref FrontendLaunchTemplate
+        Version: "1"
+      MinSize: 2
+      MaxSize: 2
+      TargetGroupARNs:
+        - !Ref FrontendTargetGroup
+
+  # Auto Scaling Group for Backend
+  BackendAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      LaunchTemplate:
+        LaunchTemplateId: !Ref BackendLaunchTemplate
+        Version: "1"
+      MinSize: 2
+      MaxSize: 2
+      TargetGroupARNs:
+        - !Ref BackendTargetGroup
+
+  BackendLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        InstanceType: !Ref InstanceType
+        KeyName: !Ref KeyName
+        SecurityGroupIds:
+          - !Ref BackendSecurityGroup
+        ImageId: ami-0ff8a91507f77f867
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            yum update -y
+            curl -sL https://rpm.nodesource.com/setup_16.x | bash -
+            yum install -y nodejs git
+            git clone https://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@github.com/JuanSMedinaC/AWS-InfraWebDeployment /home/ec2-user/app
+            cd /home/ec2-user/app/backend
+            npm install
+
+            # Generate .env file with RDS connection info
+            cat <<EOF > .env
+            DB_TYPE=postgres
+            DB_HOST=${MyRDS.Endpoint.Address}
+            DB_PORT=5432
+            DB_USERNAME=${DBUsername}
+            DB_PASSWORD=${DBPassword}
+            DB_NAME=marketplace_infra
+            JWT_SECRET=aopishdfiouhgasdfoiuh
+            EOF
+
+            # Start Express app
+            npm run build
+            npm start
+
+  FrontendLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        InstanceType: !Ref InstanceType
+        KeyName: !Ref KeyName
+        SecurityGroupIds:
+          - !Ref ECSecurityGroup
+        ImageId: ami-467ca739
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            yum update -y
+            yum install -y docker
+            service docker start
+            usermod -a -G docker ec2-user
+            yum install -y git
+            # Clone repository and set up Dockerfile
+            git clone https://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@github.com/JuanSMedinaC/AWS-InfraWebDeployment /home/ec2-user/app
+            cd /home/ec2-user/app/frontend
+            echo "NEXT_PUBLIC_API_URL=http://${AppLoadBalancer.DNSName}:3000/api/" > .env
+
+            # Create Dockerfile for Next.js application
+            cat <<EOF > Dockerfile
+            FROM node:20
+            WORKDIR /app
+            COPY . .
+            RUN npm install
+            RUN npm run build
+            CMD ["npm", "start"]
+            EOF
+
+            # Build and run Docker container
+            docker build -t nextjs-frontend .
+            docker run -d -p 80:3000 nextjs-frontend
+    
+  # CloudWatch Alarm for Backend Auto Scaling Group CPU Utilization
+  BackendASGCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm if average CPU exceeds specified threshold on backend Auto Scaling Group"
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: !Ref CPUAlarmThreshold
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlarmTopic
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref BackendAutoScalingGroup
+
+  # CloudWatch Alarm for Frontend Auto Scaling Group CPU Utilization
+  FrontendASGCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm if average CPU exceeds specified threshold on frontend Auto Scaling Group"
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: !Ref CPUAlarmThreshold
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlarmTopic
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref FrontendAutoScalingGroup
+
+
+  # CloudWatch Alarm for RDS CPU Utilization
+  RDSCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm if RDS CPU exceeds specified threshold"
+      MetricName: CPUUtilization
+      Namespace: AWS/RDS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: !Ref CPUAlarmThreshold
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlarmTopic
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !Ref MyRDS
+
+  # CloudWatch Alarm for RDS Database Connections
+  RDSConnectionsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm if database connections exceed threshold"
+      MetricName: DatabaseConnections
+      Namespace: AWS/RDS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: !Ref DBConnectionAlarmThreshold
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlarmTopic
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !Ref MyRDS
+
+  # SNS Topic for Alarm Notifications
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: "Alarm Notifications Topic"
+
+  
+
+Outputs:
+  RDSEndpoint:
+    Value: !GetAtt MyRDS.Endpoint.Address
+    Description: Endpoint of the RDS PostgreSQL instance
+
+  AlarmTopicARN: 
+    Value: !Ref AlarmTopic
+    Description: ARN of the SNS topic for CloudWatch alarm notifications
+
+  LoadBalancerDNS:
+    Value: !GetAtt AppLoadBalancer.DNSName
+    Description: URL of the load balancer for frontend access

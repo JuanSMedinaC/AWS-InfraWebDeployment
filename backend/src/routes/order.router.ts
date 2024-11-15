@@ -12,6 +12,7 @@ router.get('/buyer/:id', auth, orderController.findAllByBuyerId);
 router.get('/seller/:id', auth, orderController.findAllBySellerId);
 router.get('/:id', auth, orderController.findOne);
 router.put('/:id', auth,orderController.update);
+router.put('/', auth,orderController.acceptOrder);
 router.delete('/:id', auth, orderController.remove);
 router.delete('/:id/items', auth, orderController.removeItem);
 

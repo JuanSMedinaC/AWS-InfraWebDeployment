@@ -15,7 +15,6 @@ export const useRegister = () => {
                 email: response.email,
                 role: response.role
             };
-            console.log(user);
             Cookies.set("currentUser", JSON.stringify(user));
         }
 

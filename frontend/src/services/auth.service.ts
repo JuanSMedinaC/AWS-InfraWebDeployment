@@ -16,12 +16,10 @@ export class AuthService {
 
     public async login(email: string, password: string) {
 
-        console.log(email, password);
         const response = await this.axios.post('/users/login', {
             email,
             password
         });
-        console.log(response.data);
 
         return response.data;
     }

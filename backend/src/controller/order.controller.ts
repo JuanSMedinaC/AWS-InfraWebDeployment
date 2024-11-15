@@ -85,13 +85,21 @@ export class OrderController {
 
     async acceptOrder(req: Request, res: Response): Promise<any> {
         try {
-            const id = req.params.id;
-            const response = await orderService.acceptOrder(req, id);
+            const { userId, orderId } = req.body;
+    
+            if (!userId || !orderId) {
+                return res.status(400).json({ message: "userId y orderId son obligatorios" });
+            }
+    
+            const response = await orderService.acceptOrder(userId, orderId);
             return res.status(200).json(response);
         } catch (error) {
             return res.status(400).json({ message: "Error al aceptar la orden" });
         }
     }
+    
+    
+    
 
     async remove(req: Request, res: Response): Promise<any> {
         try {

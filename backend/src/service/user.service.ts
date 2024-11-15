@@ -40,7 +40,7 @@ export class UserService {
   
   private generateToken(user: User): string {
     try {
-      return  jwt.sign({user_id: user.id, email: user.email, name: user.name}, process.env.JWT_SECRET || "secret", {expiresIn: "1m"});
+      return  jwt.sign({user_id: user.id, email: user.email, name: user.name}, process.env.JWT_SECRET || "secret", {expiresIn: "30m"});
     } catch (error) {
       throw error;
     }

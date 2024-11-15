@@ -37,20 +37,34 @@ export class OrderService {
     }
     
 
-    async acceptOrder(req: any, id: string) {
-        const user = req.user as User;
-        const order = await this.ordersRepository.findOneBy({ id: id })
-        if (order){
-            if (user.id == order.sellerId || user.role==(UserRole.ADMIN)) {
-                order.accepted = true;
-                if (!order) throw error(`Order Item with id: ${id} not found`);
-
-                return `This action updates a #${id} order`;
-            } else {
-                throw error('Unauthorized');
+    async acceptOrder(userId: string, orderId: string) {
+        try {
+            const order = await this.ordersRepository.findOneBy({ id: orderId });
+    
+            if (!order) {
+                throw new Error(`Orden con ID: ${orderId} no encontrada`);
             }
+            if (userId === order.sellerId || userId === UserRole.ADMIN) {
+                
+                order.accepted = true;
+                await this.ordersRepository.save(order);
+                return { message: `Orden con ID ${orderId} aceptada exitosamente` };
+            } else {
+                console.error(`No autorizado para aceptar la orden. userId: ${userId}, sellerId: ${order.sellerId}`);
+                throw new Error("No autorizado para aceptar esta orden");
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error("Error en el servicio acceptOrder:", error.message);
+            } else {
+                console.error("Error en el servicio acceptOrder:", error);
+            }
+            throw error;
         }
     }
+    
+    
+    
 
     async createOrderItem(id: string, createOrderItemDto: CreateOrderItemDto) {
         try {

@@ -1,14 +1,13 @@
-import { Pencil, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import styles from '../app/styles/ProductCardSeller.module.css';
 import productExample from '../app/icons/productExample.svg';
-import Image from 'next/image';
 
 interface ProductCardProps {
   name: string;
   description: string;
   price: number;
+  image: string;
   category: string;
-  onEdit: () => void;
   onDelete: () => void;
   stock?: number;
   status?: 'active' | 'inactive';
@@ -18,8 +17,8 @@ export default function ProductCardSeller({
   name,
   description,
   price,
+  image,
   category,
-  onEdit,
   onDelete,
   status = 'active'
 }: ProductCardProps) {
@@ -28,14 +27,14 @@ export default function ProductCardSeller({
       <div className={styles.flexContainer}>
         {/* Imagen del producto */}
         <div className={styles.imageContainer}>
-          <Image
-            src={productExample}
-            alt={name}
+          <img
+            src={image || productExample} 
+            alt={name}  
             className={styles.productImage}
+            width={500}
+            height={500}
           />
-          <div className={`${styles.statusIndicator} ${
-            status === 'active' ? styles.statusActive : styles.statusInactive
-          }`} />
+          <div className={`${styles.statusIndicator} ${status === 'active' ? styles.statusActive : styles.statusInactive}`} />
         </div>
 
         {/* Información del producto */}
@@ -43,12 +42,6 @@ export default function ProductCardSeller({
           <div className={styles.header}>
             <h2 className={styles.productTitle}>{name}</h2>
             <div className={styles.buttonContainer}>
-              <button 
-                onClick={onEdit}
-                className={`${styles.actionButton} ${styles.editButton}`}
-              >
-                <Pencil size={18} />
-              </button>
               <button 
                 onClick={onDelete}
                 className={`${styles.actionButton} ${styles.deleteButton}`}
@@ -75,9 +68,7 @@ export default function ProductCardSeller({
               <p className={styles.price}>${price}</p>
             </div>
             <div>
-              <span className={`${styles.statusBadge} ${
-                status === 'active' ? styles.badgeActive : styles.badgeInactive
-              }`}>
+              <span className={`${styles.statusBadge} ${status === 'active' ? styles.badgeActive : styles.badgeInactive}`}>
                 {status === 'active' ? 'Activo' : 'Inactivo'}
               </span>
             </div>

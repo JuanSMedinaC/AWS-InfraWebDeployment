@@ -1,4 +1,4 @@
-import Image from 'next/image';
+
 import styles from '../app/styles/HomeBuyer.module.css';
 import productExample from '../app/icons/productExample.svg';
 
@@ -6,22 +6,22 @@ interface ProductCardProps {
     name: string
     description: string
     price: number
+    image: string
     category: string
-  //  category: ['food', 'drink', 'books', 'electronics', 'fashion', 'sports', 'other']
-    onChangePage: () => void
+    onAddToCart: () => void
 }
 
-export default function ProductCardBuyer({name, description, price, category, onChangePage}: ProductCardProps) {
+export default function ProductCardBuyer({name, description, price, image, category, onAddToCart}: ProductCardProps) {
   return (
         <div className={styles.productCard}>
             <div className={styles.productImageWrapper}>
-                <Image
-                src={productExample}
-                alt={name}
-                width={50}
-                height={50}
-                className={styles.productImage}
-            />
+                    <img
+                    src={image || productExample}
+                    alt={name} 
+                    className={styles.productImage}
+                    width={500} 
+                    height={500} 
+                />
             </div>
             <div className={styles.productContent}>
                 <h2 className={styles.productName}>{name}</h2>
@@ -29,7 +29,7 @@ export default function ProductCardBuyer({name, description, price, category, on
                 <p className={styles.productDescription}>Categoria: {category}</p>
                 <div className={styles.productFooter}>
                     <span className={styles.productPrice}>${price}</span>
-                    <button className={styles.addToCartButton} onClick={onChangePage}>
+                    <button className={styles.addToCartButton} onClick={onAddToCart}>
                         <span>+ Añadir</span>
                     </button>
                 </div>
