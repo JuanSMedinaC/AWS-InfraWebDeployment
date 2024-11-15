@@ -18,7 +18,6 @@ export class OrdersService {
     }
 
     public async create(createOrderDto: CreateOrderDto) {
-        //console.log("DTO",createOrderDto);
         const response = await this.axios.post("/orders/",createOrderDto, {
             headers: {
                 Authorization: `Bearer ${Cookies.get("token")}`
@@ -70,7 +69,6 @@ export class OrdersService {
             orderId: orderId
         };
 
-        console.log("Body enviado al backend:", body);
 
         const response = await this.axios.put(`/orders/`, body, {
             headers: {

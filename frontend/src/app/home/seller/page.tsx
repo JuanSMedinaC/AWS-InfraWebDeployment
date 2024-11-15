@@ -7,6 +7,7 @@ import search from '../../icons/search.svg';
 import user from '../../icons/user.svg';
 import ProductCardSeller from "@/components/ProductCardSeller";
 import { useGetProductsByUser } from "@/hooks/products/useGetProductsByUser";
+import { useDeleteProduct } from "@/hooks/products/useDeleteProduct";
 import Cookies from 'js-cookie';
 
 export default function HomeSellerPage(){
@@ -14,6 +15,7 @@ export default function HomeSellerPage(){
     const [searchQuery, setSearchQuery] = useState<string>('');
     const { getProductsByUser } = useGetProductsByUser();
     const [products, setProducts] = useState<Product[]>([]);
+    const { deleteProduct } = useDeleteProduct();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -44,12 +46,14 @@ export default function HomeSellerPage(){
         window.location.href = "/";
     };
 
-    const handleEdit = (id: string) => {
-        console.log('Edit product:', id);
-    }
-
-    const confirmDelete = (id: string) => {
-        console.log('Delete product:', id);
+    const confirmDelete = async (id: string) => {
+        if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+            try {
+                await deleteProduct(id);
+            } catch (error) {
+                console.error('Error deleting product:', error);
+            }
+        }
     }
 
     return (
@@ -104,7 +108,7 @@ export default function HomeSellerPage(){
                     </div>
                     <h1 className={styles.title}>Mis Productos</h1>
                     <button className={styles.addProductButton}>
-                        <span>+ Añadir</span>
+                        <a href="seller/create">+ Añadir</a>
                     </button>
                     <div className={styles.productGrid}>
                         {filteredProducts.map((product) => (
@@ -113,8 +117,8 @@ export default function HomeSellerPage(){
                                 name={product.name}
                                 description={product.description}
                                 price={product.price}
+                                image={product.image}
                                 category={product.category}
-                                onEdit={() => handleEdit(product.id)}
                                 onDelete={() => confirmDelete(product.id)}
                             />
                         ))}

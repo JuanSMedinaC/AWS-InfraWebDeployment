@@ -112,8 +112,6 @@ export default function HomeBuyerPage() {
                     sellerId: sellerId,
                     items: ordersBySeller[sellerId]
                 };
-
-                //console.log('Orden:', orderData);
                 await createOrder(orderData);
             }
             
@@ -193,6 +191,7 @@ export default function HomeBuyerPage() {
                                 name={product.name}
                                 description={product.description}
                                 price={product.price}
+                                image={product.image}
                                 category={product.category}
                                 onAddToCart={() => handleAddToCart(product)}
                             />
