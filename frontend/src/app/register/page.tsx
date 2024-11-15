@@ -168,7 +168,7 @@ export default function Register() {
         <div className={styles.login}>
           ¿Ya tienes una cuenta? 
           <Link href="/">
-            <a>Inicia sesión</a>
+            Inicia sesión
           </Link>
         </div>
       </div>

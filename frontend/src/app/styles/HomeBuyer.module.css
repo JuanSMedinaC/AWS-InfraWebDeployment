@@ -307,3 +307,216 @@
       font-size: 1rem;
     }
   }
+
+  .cartModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .cartContent {
+    background-color: #fff;
+    width: 90%;
+    max-width: 400px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+  
+  .cartContent h2 {
+    margin: 0;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  
+  /* Drawer Styles */
+  .cartDrawer {
+    position: fixed;
+    top: 0;
+    right: -100%; /* Hidden by default */
+    height: 100%;
+    width: 300px;
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .cartDrawer.open {
+    right: 0; /* Slide in when open */
+  }
+  
+  .cartHeader {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.3s;
+  }
+  
+  .closeButton:hover {
+    color: #28a745; /* Green on hover */
+  }
+  
+  /* List of Products in Cart */
+  .cartList {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    max-height: calc(100% - 150px); /* Leave space for footer */
+    overflow-y: auto;
+  }
+  
+  .cartItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .productName {
+    font-size: 1.2rem; /* Ajusta el tamaño según lo necesites */
+    font-weight: bold; /* Aplica negrita al nombre del producto */
+  }
+  
+  
+  .cartItem div {
+    flex: 1;
+  }
+  
+  .cartItemActions {
+    display: flex;
+    justify-content: flex-end; /* Alinea el botón de eliminar a la derecha */
+  }
+  
+  .removeButton {
+    background-color: #ff4d4d;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.3s;
+  }
+  
+  .removeButton:hover {
+    background-color: #e60000;
+  }
+  
+  
+  .cartItem img {
+    border-radius: 4px;
+    margin-right: 10px;
+  }
+  
+  .cartItem div {
+    flex: 1;
+  }
+  
+  .cartItem p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+  }
+  
+  .cartItem button {
+    background-color: #28a745; /* Green button */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.3s;
+  }
+  
+  .cartItem button:hover {
+    background-color: #218838; /* Darker green on hover */
+  }
+  
+  /* Footer (Fixed at Bottom) */
+  .cartFooter {
+    position: sticky;
+    bottom: 0; /* Sticky to the bottom */
+    background-color: #fff;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .payButton {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745; /* Green button */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+  }
+  
+  .payButton:hover {
+    background-color: #218838; /* Darker green on hover */
+  }
+  
+  .emptyCart {
+    text-align: center;
+    padding: 20px;
+    color: #555;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .cartDrawer {
+      width: 90%; /* Wider for smaller screens */
+    }
+  }
+  
+  .quantityControls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+  }
+  
+  .quantityControls button {
+    background-color: #28a745; /* Green button */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.3s;
+  }
+  
+  .quantityControls button:hover {
+    background-color: #218838; /* Darker green on hover */
+  }
+  
+  .quantityControls span {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  

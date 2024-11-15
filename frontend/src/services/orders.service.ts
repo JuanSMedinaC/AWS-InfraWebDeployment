@@ -1,8 +1,9 @@
+import { CreateOrderDto } from '@/dto/orders/createOrder.dto';
 import axios, { AxiosInstance } from 'axios';
 import Cookies from "js-cookie";
 
 
-export class ProductsService {
+export class OrdersService {
     protected readonly axios: AxiosInstance;
     
     constructor(url: string) {
@@ -16,8 +17,9 @@ export class ProductsService {
         });
     }
 
-    public async getAll() {
-        const response = await this.axios.get('/products/', {
+    public async create(createOrderDto: CreateOrderDto) {
+        //console.log("DTO",createOrderDto);
+        const response = await this.axios.post("/orders/",createOrderDto, {
             headers: {
                 Authorization: `Bearer ${Cookies.get("token")}`
             }
@@ -25,21 +27,8 @@ export class ProductsService {
         return response.data;
     }
 
-    public async getByUser() {
-        const currentUser = JSON.parse(Cookies.get("currentUser") || "{}");
-        if (!currentUser.id) {
-            throw new Error("User ID not found in cookies");
-        }
-        const response = await this.axios.get(`/products/user/${currentUser.id}`, { 
-            headers: {
-                Authorization: `Bearer ${Cookies.get("token")}`
-            }
-        });
-        return response.data;
-    }
-
-    public async getById(id: string) {
-        const response = await this.axios.get(`/products/${id}`, {
+    public async getOrdersBuyer(buyerId: string) {
+        const response = await this.axios.get(`/orders/buyer/${buyerId}`, {
             headers: {
                 Authorization: `Bearer ${Cookies.get("token")}`
             }

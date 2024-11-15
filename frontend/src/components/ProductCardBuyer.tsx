@@ -8,10 +8,10 @@ interface ProductCardProps {
     price: number
     category: string
   //  category: ['food', 'drink', 'books', 'electronics', 'fashion', 'sports', 'other']
-    onChangePage: () => void
+    onAddToCart: () => void
 }
 
-export default function ProductCardBuyer({name, description, price, category, onChangePage}: ProductCardProps) {
+export default function ProductCardBuyer({name, description, price, category, onAddToCart}: ProductCardProps) {
   return (
         <div className={styles.productCard}>
             <div className={styles.productImageWrapper}>
@@ -29,7 +29,7 @@ export default function ProductCardBuyer({name, description, price, category, on
                 <p className={styles.productDescription}>Categoria: {category}</p>
                 <div className={styles.productFooter}>
                     <span className={styles.productPrice}>${price}</span>
-                    <button className={styles.addToCartButton} onClick={onChangePage}>
+                    <button className={styles.addToCartButton} onClick={onAddToCart}>
                         <span>+ Añadir</span>
                     </button>
                 </div>
