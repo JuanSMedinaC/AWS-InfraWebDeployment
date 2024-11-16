@@ -331,7 +331,7 @@ Resources:
             yum update -y
             curl -sL https://rpm.nodesource.com/setup_16.x | bash -
             yum install -y nodejs git
-            git clone https://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@github.com/JuanSMedinaC/AWS-InfraWebDeployment /home/ec2-user/app
+            git clone https://<Reemplazar por token>@github.com/JuanSMedinaC/AWS-InfraWebDeployment /home/ec2-user/app
             cd /home/ec2-user/app/backend
             npm install
 
@@ -368,7 +368,7 @@ Resources:
             usermod -a -G docker ec2-user
             yum install -y git
             # Clone repository and set up Dockerfile
-            git clone https://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@github.com/JuanSMedinaC/AWS-InfraWebDeployment /home/ec2-user/app
+            git clone https://<Reemplazar por token>@github.com/JuanSMedinaC/AWS-InfraWebDeployment /home/ec2-user/app
             cd /home/ec2-user/app/frontend
             echo "NEXT_PUBLIC_API_URL=http://${AppLoadBalancer.DNSName}:3000/api/" > .env
 
